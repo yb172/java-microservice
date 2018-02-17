@@ -14,9 +14,9 @@ public class TestRestApi extends ExternalResource {
   protected void before() throws Throwable {
     final Injector injector = Guice.createInjector(new Module());
     server = injector.getInstance(RestApiServer.class);
-    server.start(8080).waitUntilStarted();
+    server.start(0).waitUntilStarted();
 
-    urlPrefix = "http://localhost:8080";
+    urlPrefix = "http://localhost:" + server.getPort();
   }
 
   @Override
