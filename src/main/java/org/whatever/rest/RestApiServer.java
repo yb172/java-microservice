@@ -1,13 +1,14 @@
 package org.whatever.rest;
 
-import static spark.Spark.*;
-
 import javax.inject.Inject;
+
+import spark.Service;
 
 public class RestApiServer implements AutoCloseable {
 
   private final HelloController helloController;
   private final GoodbyeController goodbyeController;
+  private final Service server;
 
   @Inject
   public RestApiServer(
@@ -15,31 +16,32 @@ public class RestApiServer implements AutoCloseable {
       final GoodbyeController goodbyeController) {
     this.helloController = helloController;
     this.goodbyeController = goodbyeController;
+    this.server = Service.ignite();
   }
 
   public RestApiServer start(int port) {
-    port(port);
+    server.port(port);
     defineRoutes();
     return this;
   }
 
   public RestApiServer waitUntilStarted() {
-    awaitInitialization();
+    server.awaitInitialization();
     return this;
   }
 
   public int getPort() {
-    return port();
+    return server.port();
   }
 
   private void defineRoutes() {
-    get("/hello", helloController::sayHello);
+    server.get("/hello", helloController::sayHello);
 
-    get("/goodbye/:name", goodbyeController::sayGoodbye);
+    server.get("/goodbye/:name", goodbyeController::sayGoodbye);
   }
 
   @Override
   public void close() {
-    stop();
+    server.stop();
   }
 }
